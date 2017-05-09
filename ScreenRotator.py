@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Original work: frecel [https://github.com/frecel/ScreenRotator]
+# Modified by: hyperpostulate
+# License: GPL3+
 
 import os
 import signal
@@ -17,21 +20,26 @@ def main():
 
 def build_menu():
     menu = Gtk.Menu()
-    #brightness
-    item_brightness_up = Gtk.MenuItem('Increase Brightness')
-    item_brightness_up.connect('activate', increase_brightness)
-    menu.append(item_brightness_up)
-    item_brightness_down = Gtk.MenuItem("Decrease Brightness")
-    item_brightness_down.connect('activate', decrease_brightness)
-    menu.append(item_brightness_down)
-    #rotate
-    item_rotate = Gtk.MenuItem('Rotate')
-    item_rotate.connect('activate', rotate_screen)
-    menu.append(item_rotate)
+    item_header = Gtk.MenuItem('Screen Rotator')
+    menu.append(item_header)
+    seperator = Gtk.SeparatorMenuItem()
+    menu.append(seperator)
     #flip
-    item_flip = Gtk.MenuItem('Flip')
-    item_flip.connect('activate', flip_screen)
-    menu.append(item_flip)
+    # item_flip = Gtk.MenuItem('Flip')
+    # item_flip.connect('activate', flip_screen)
+    # menu.append(item_flip)
+    #landscape
+    item_landscape = Gtk.MenuItem('Normal Mode')
+    item_landscape.connect('activate', make_landscape)
+    menu.append(item_landscape)
+    #portrait
+    item_portrait = Gtk.MenuItem('Portrait Mode')
+    item_portrait.connect('activate', make_portrait)
+    menu.append(item_portrait)
+    #tent
+    item_tent = Gtk.MenuItem('Tent Mode')
+    item_tent.connect('activate', make_tent)
+    menu.append(item_tent)
     #seperator
     seperator = Gtk.SeparatorMenuItem()
     menu.append(seperator)
@@ -42,34 +50,39 @@ def build_menu():
     menu.show_all()
     return menu
 
-def rotate_screen(source):
-    global orientation
-    if orientation == "normal":
-        direction = "left"
-    elif orientation == "left":
-        direction ="normal"
-    call(["xrandr", "-o", direction])
-    orientation = direction
+def make_landscape(source):
+    call(["./touchscreen-normal.sh"])
+    call(["xrandr", "-o", "normal"])
 
-def flip_screen(source):
-    global orientation
-    if orientation == "normal":
-        direction = "inverted"
-    elif orientation == "inverted":
-        direction ="normal"
-    call(["xrandr", "-o", direction])
-    orientation = direction
+def make_portrait(source):
+    call(["./touchscreen-left.sh"])
+    call(["xrandr", "-o", "left"])
+
+def make_tent(source):
+    call(["./touchscreen-inverted.sh"])
+    call(["xrandr", "-o", "inverted"])
 
 
-def increase_brightness(source):
-    call(["xbacklight", "-inc", "20"])
 
-def decrease_brightness(source):
-    call(["xbacklight", "-dec", "20"])
+# def flip_screen(source):
+#     global orientation
+#     if orientation == "normal":
+#         direction = "inverted"
+#         call(["./touchscreen-inverted.sh"])
+#     elif orientation == "inverted":
+#         direction = "left"
+#         call(["./touchscreen-left.sh"])
+#     elif orientation == "left":
+#         direction = "normal"
+#         call(["./touchscreen-normal.sh"])
+#     call(["xrandr", "-o", direction])
+#     orientation = direction
+
 
 if __name__ == "__main__":
     #make sure the screen is in normal orientation when the script starts
     call(["xrandr", "-o", orientation])
+    call(["./touchscreen-normal.sh"])
     #keyboard interrupt handler
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     main()
