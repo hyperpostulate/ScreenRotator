@@ -10,7 +10,6 @@ from gi.repository import Gtk
 from gi.repository import AppIndicator3 as AppIndicator
 
 APPINDICATOR_ID = "screenrotator"
-orientation = "normal"
 
 def main():
     indicator = AppIndicator.Indicator.new(APPINDICATOR_ID, os.path.abspath('./icon.svg'), AppIndicator.IndicatorCategory.SYSTEM_SERVICES)
@@ -24,10 +23,7 @@ def build_menu():
     menu.append(item_header)
     seperator = Gtk.SeparatorMenuItem()
     menu.append(seperator)
-    #flip
-    # item_flip = Gtk.MenuItem('Flip')
-    # item_flip.connect('activate', flip_screen)
-    # menu.append(item_flip)
+
     #landscape
     item_landscape = Gtk.MenuItem('Normal Mode')
     item_landscape.connect('activate', make_landscape)
@@ -52,36 +48,23 @@ def build_menu():
 
 def make_landscape(source):
     call(["./touchscreen-normal.sh"])
+    call(["./enable-touchpad-and-keyboard.sh"])
     call(["xrandr", "-o", "normal"])
 
 def make_portrait(source):
     call(["./touchscreen-left.sh"])
+    call(["./disable-touchpad-and-keyboard.sh"])
     call(["xrandr", "-o", "left"])
 
 def make_tent(source):
     call(["./touchscreen-inverted.sh"])
+    call(["./disable-touchpad-and-keyboard.sh"])
     call(["xrandr", "-o", "inverted"])
-
-
-
-# def flip_screen(source):
-#     global orientation
-#     if orientation == "normal":
-#         direction = "inverted"
-#         call(["./touchscreen-inverted.sh"])
-#     elif orientation == "inverted":
-#         direction = "left"
-#         call(["./touchscreen-left.sh"])
-#     elif orientation == "left":
-#         direction = "normal"
-#         call(["./touchscreen-normal.sh"])
-#     call(["xrandr", "-o", direction])
-#     orientation = direction
-
 
 if __name__ == "__main__":
     #make sure the screen is in normal orientation when the script starts
-    call(["xrandr", "-o", orientation])
+    call(["xrandr", "-o", "normal"])
+    call(["./enable-touchpad-and-keyboard.sh"])
     call(["./touchscreen-normal.sh"])
     #keyboard interrupt handler
     signal.signal(signal.SIGINT, signal.SIG_DFL)
